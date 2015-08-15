@@ -20,10 +20,6 @@ public class C4Properties {
 
     private List<Board> boards = new ArrayList<>();
 
-    static {
-        SerializationRegistrar.registerClass(Board.class);
-    }
-
     @Getter
     public static class Board {
         private BlockFace face;

@@ -2,6 +2,7 @@ package me.xorgon.connect4;
 
 import com.supaham.commons.bukkit.SimpleCommonPlugin;
 import org.bukkit.Bukkit;
+import pluginbase.config.SerializationRegistrar;
 
 import java.io.File;
 
@@ -13,6 +14,11 @@ public class Connect4Plugin extends SimpleCommonPlugin<Connect4Plugin> {
     private static Connect4Plugin instance;
     private C4Manager manager;
     private static final String COMMAND_PREFIX = "c4";
+
+    static {
+        SerializationRegistrar.registerClass(C4Properties.class);
+        SerializationRegistrar.registerClass(C4Properties.Board.class);
+    }
 
     public Connect4Plugin() {
         super(Connect4Plugin.class, COMMAND_PREFIX);
