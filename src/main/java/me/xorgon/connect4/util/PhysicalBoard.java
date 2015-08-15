@@ -68,28 +68,34 @@ public class PhysicalBoard {
     }
 
     public void placePiece(Player player, int column) {
-        MaterialData material;
+        if ((player == redPlayer && redTurn) || (player == bluePlayer && !redTurn)) {
+            MaterialData material;
 
-        //Virtual Board
-        VirtualBoard.SpaceType piece;
-        if (player == redPlayer) {
-            piece = VirtualBoard.SpaceType.RED;
-            material = config.getRedBlock();
+            //Virtual Board
+            VirtualBoard.SpaceType piece;
+            if (player == redPlayer) {
+                piece = VirtualBoard.SpaceType.RED;
+                material = config.getRedBlock();
+            } else {
+                piece = VirtualBoard.SpaceType.BLUE;
+                material = config.getBlueBlock();
+            }
+            if (board.placePiece(column, piece)) {
+                //Physical Board
+                Block slot = slots.get(column);
+                FallingBlock block = (FallingBlock) slot.getWorld().spawnFallingBlock(slot.getLocation(), material.getItemType(), material.getData());
+                fallingBlocks.add(block);
+
+                if (redTurn) {
+                    redTurn = false;
+                } else {
+                    redTurn = true;
+                }
+            } else {
+                player.sendMessage(ChatColor.RED + "You can't place a piece there.");
+            }
         } else {
-            piece = VirtualBoard.SpaceType.BLUE;
-            material = config.getBlueBlock();
-        }
-        board.placePiece(column, piece);
-
-        //Physical Board
-        Block slot = slots.get(column);
-        FallingBlock block = (FallingBlock) slot.getWorld().spawnFallingBlock(slot.getLocation(), material.getItemType(), material.getData());
-        fallingBlocks.add(block);
-
-        if (redTurn){
-            redTurn = false;
-        } else {
-            redTurn = true;
+            player.sendMessage(ChatColor.RED + "It is not your turn.");
         }
     }
 

@@ -21,13 +21,14 @@ public class VirtualBoard {
      * @param x     The column number.
      * @param color The color to set, cannot be EMPTY.
      */
-    public void placePiece(int x, SpaceType color) {
+    public boolean placePiece(int x, SpaceType color) {
         for (int y = 0; y < 6; y++) {
             if (spaces[x][y] == SpaceType.EMPTY) {
                 spaces[x][y] = color;
-                return;
+                return true;
             }
         }
+        return false;
     }
 
     public WinStatus testWin() {

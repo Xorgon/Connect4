@@ -60,7 +60,14 @@ public class C4ConsoleVersion {
                 System.out.println("Invalid input, slot must be between 0 and 6.");
                 slot = Integer.valueOf(scanner.nextLine());
             }
-            board.placePiece(slot, redTurn ? VirtualBoard.SpaceType.RED : VirtualBoard.SpaceType.BLUE);
+            boolean placed = false;
+            while (!placed) {
+                placed = board.placePiece(slot, redTurn ? VirtualBoard.SpaceType.RED : VirtualBoard.SpaceType.BLUE);
+                if (!placed){
+                    System.out.println("You can't put a piece there.");
+                    slot = Integer.valueOf(scanner.nextLine());
+                }
+            }
             outputBoard();
             redTurn = !redTurn;
             win = board.testWin();
