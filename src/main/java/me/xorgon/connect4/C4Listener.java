@@ -29,11 +29,10 @@ public class C4Listener implements Listener {
         }
     }
 
-    //TODO Check if slot is full.
     @EventHandler
     public void onButtonPress(PlayerInteractEvent event) {
         Action action = event.getAction();
-        if (action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK) {
+        if (action == Action.RIGHT_CLICK_BLOCK) {
             Block clickedBlock = event.getClickedBlock();
             Material type = clickedBlock.getType();
             if (type == Material.STONE_BUTTON || type == Material.WOOD_BUTTON) {
