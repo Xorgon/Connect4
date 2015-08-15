@@ -4,6 +4,8 @@ import com.supaham.commons.bukkit.utils.SerializationUtils;
 import lombok.Getter;
 import me.xorgon.connect4.util.PhysicalBoard;
 import me.xorgon.connect4.util.Selection;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 
@@ -33,6 +35,14 @@ public class C4Manager {
 
     public void load(){
         config = SerializationUtils.loadOrCreateProperties(plugin, file, new C4Properties(), "settings");
+        for (C4Properties.Board board : config.getBoards()) {
+            World world = Bukkit.getWorld(board.getWorld());
+            if (world == null){
+                plugin.getLog().severe("'%s' board has null world.", board.getId());
+                continue;
+            }
+            boards.put(board.getId(), new PhysicalBoard(world, board));
+        }
     }
 
     public void save(){

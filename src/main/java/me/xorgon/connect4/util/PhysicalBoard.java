@@ -15,10 +15,9 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
+import org.bukkit.util.Vector;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Elijah on 14/08/2015.
@@ -27,17 +26,19 @@ import java.util.Map;
 @Setter
 public class PhysicalBoard {
 
-    private Map<Integer, Block> slots;
-    private List<Block> spaces;
-    private Map<Block, Integer> buttons;
+    private Map<Integer, Block> slots = new HashMap<>();
+    private List<Block> spaces = new ArrayList<>();
+    private Map<Block, Integer> buttons = new HashMap<>();
     private Block joinButton;
     private Player redPlayer;
     private Player bluePlayer;
     private VirtualBoard board;
     private String tag;
     private BlockFace face;
-    private C4Properties.Board config;
+    private final C4Properties.Board config;
+    private final World world;
 
+    private boolean canInteract = true;
     private boolean started = false;
     private boolean redTurn = true;
     private boolean finished = false;
@@ -47,17 +48,20 @@ public class PhysicalBoard {
     public PhysicalBoard(@NonNull World world, @NonNull C4Properties.Board serialized) {
         Preconditions.checkArgument(BlockFaceUtils.isHorizontal(serialized.getFace()), "Block face must be horizontal.");
 
+        this.world = world;
         config = serialized;
+        board = new VirtualBoard();
         loadBoard(world);
 
     }
 
     public void resetBoard() {
-        for (Block space : spaces) {
-            space.setType(Material.AIR);
+        for (Vector space : config.getRegion()) {
+            space.toLocation(world).getBlock().setType(Material.AIR);
         }
         board.initialize();
         finished = false;
+        canInteract = true;
     }
 
     public void resetPlayers() {
@@ -83,14 +87,10 @@ public class PhysicalBoard {
             if (board.placePiece(column, piece)) {
                 //Physical Board
                 Block slot = slots.get(column);
-                FallingBlock block = (FallingBlock) slot.getWorld().spawnFallingBlock(slot.getLocation(), material.getItemType(), material.getData());
+                FallingBlock block = (FallingBlock) slot.getWorld().spawnFallingBlock(slot.getLocation().add(0, 1, 0), material.getItemType(), material.getData());
                 fallingBlocks.add(block);
 
-                if (redTurn) {
-                    redTurn = false;
-                } else {
-                    redTurn = true;
-                }
+                canInteract = false;
             } else {
                 player.sendMessage(ChatColor.RED + "You can't place a piece there.");
             }
@@ -102,11 +102,15 @@ public class PhysicalBoard {
     public void handleFallingBlock(FallingBlock block) {
         VirtualBoard.WinStatus winStatus = board.testWin();
         if (winStatus != VirtualBoard.WinStatus.NONE) {
+            String winString = (winStatus == VirtualBoard.WinStatus.RED ? ChatColor.RED + redPlayer.getName() : ChatColor.BLUE + bluePlayer.getName())
+                    + ChatColor.YELLOW + " wins!";
             Collection<? extends Player> players = Players.playersByRadius(Players.worldPlayers(block.getWorld()), 20).get(block.getLocation());
             for (Player player : players) {
-                player.sendMessage((winStatus == VirtualBoard.WinStatus.RED) ? (ChatColor.RED + redPlayer.getName()) : (ChatColor.BLUE + bluePlayer.getName())
-                        + ChatColor.GREEN + " wins!");
+                player.sendMessage(winString);
             }
+
+            redPlayer.sendTitle(winString, (winStatus == VirtualBoard.WinStatus.RED) ? ChatColor.YELLOW + "Congratulations!" : ChatColor.YELLOW + "Better luck next time.");
+            bluePlayer.sendTitle(winString, (winStatus == VirtualBoard.WinStatus.BLUE) ? ChatColor.YELLOW + "Congratulations!" : ChatColor.YELLOW + "Better luck next time.");
 
             finished = true;
 
@@ -116,12 +120,21 @@ public class PhysicalBoard {
                     resetBoard();
                     resetPlayers();
                 }
-            }, 15*20);
+            }, 10 * 20);
+        } else {
+            canInteract = true;
+            if (redTurn) {
+                redTurn = false;
+                bluePlayer.sendTitle(ChatColor.YELLOW + "Your turn!", "");
+            } else {
+                redTurn = true;
+                redPlayer.sendTitle(ChatColor.YELLOW + "Your turn!", "");
+            }
         }
         fallingBlocks.remove(block);
     }
 
-    public void loadBoard(World world){
+    public void loadBoard(World world) {
         Location min = config.getRegion().getMinimumPoint().toLocation(world);
         Location max = config.getRegion().getMaximumPoint().toLocation(world);
 
@@ -137,7 +150,7 @@ public class PhysicalBoard {
             offX = 1;
         }
 
-        for (int i = 0; i < width; i++) {
+        for (int i = 0; i < width + 1; i++) {
             Block button = min.clone().add(offX * i, -1, offZ * i).getBlock().getRelative(config.getFace().getOppositeFace());
             buttons.put(button, i);
 
@@ -145,5 +158,7 @@ public class PhysicalBoard {
             Block slot = min.clone().add(offX * i, height, offZ * i).getBlock();
             slots.put(i, slot);
         }
+
+        resetBoard();
     }
 }

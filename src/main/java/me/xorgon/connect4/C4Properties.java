@@ -22,6 +22,8 @@ public class C4Properties {
 
     @Getter
     public static class Board {
+        private String id;
+        private String world;
         private BlockFace face;
         private CuboidRegion region;
         @SerializeWith(MaterialDataSerializer.class)
