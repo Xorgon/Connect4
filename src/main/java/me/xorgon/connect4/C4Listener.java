@@ -38,7 +38,7 @@ public class C4Listener implements Listener {
             if (type == Material.STONE_BUTTON || type == Material.WOOD_BUTTON) {
                 for (PhysicalBoard board : manager.getBoards().values()) {
                     for (Block block : board.getButtons().keySet()) {
-                        if (clickedBlock == block) {
+                        if (clickedBlock.equals(block)) {
                             if (board.getRedPlayer() == null) {
                                 board.setRedPlayer(event.getPlayer());
                             } else if (board.getBluePlayer() == null) {
