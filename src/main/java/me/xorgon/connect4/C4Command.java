@@ -38,7 +38,7 @@ public class C4Command implements CommandExecutor {
 
     private boolean Connect4(Player player, String[] args) {
         if (args.length > 0) {
-            if (args[0].equalsIgnoreCase("point1")) {
+            /*if (args[0].equalsIgnoreCase("point1")) {
                 Selection s;
                 if (manager.getSelections().containsKey(player)) {
                     s = manager.getSelection(player);
@@ -61,12 +61,23 @@ public class C4Command implements CommandExecutor {
                 Block targetBlock = player.getTargetBlock((Set<Material>) null, 16);
                 s.setPoint2(targetBlock.getLocation().toVector());
                 player.sendMessage("Point 2 set.");
+            }*/
+            if (args[0].equalsIgnoreCase("list")){
+                manager.getBoards().keySet().forEach((s) -> player.sendMessage(ChatColor.GREEN + s));
+            }
+            if (args[0].equalsIgnoreCase("reload")){
+                for (PhysicalBoard board : manager.getBoards().values()) {
+                    board.resetBoard();
+                    board.resetPlayers();
+                }
+                manager.getBoards().clear();
+                manager.load();
+                player.sendMessage(ChatColor.GREEN + "Connect4 has been reloaded.");
             }
             if (args.length > 1) {
-                if (args[0].equalsIgnoreCase("setboard")) {
+                /*if (args[0].equalsIgnoreCase("setboard")) {
                     Selection sel = manager.getSelection(player);
                     PhysicalBoard board = manager.getBoard(args[1]);
-                    //TODO Set region for loading.
                     board.loadBoard(player.getWorld());
                 }
                 if (args[0].equalsIgnoreCase("setjoinbutton")) {
@@ -83,16 +94,26 @@ public class C4Command implements CommandExecutor {
                     }
 
                 }
-            }
-            if (args[0].equalsIgnoreCase("addboard")) {
-                //manager.addBoard(args[1]);
-                player.sendMessage("Board " + args[1] + " has been created.");
+                if (args[0].equalsIgnoreCase("addboard")) {
+                    //manager.addBoard(args[1]);
+                    player.sendMessage("Board " + args[1] + " has been created.");
+                }*/
+                if (args[0].equalsIgnoreCase("reset")){
+                    if (manager.getBoards().containsKey(args[1].toLowerCase())) {
+                        PhysicalBoard board = manager.getBoard(args[1]);
+                        board.resetBoard();
+                        player.sendMessage(ChatColor.GREEN + args[1] + " has been reset");
+                    } else {
+                        player.sendMessage(ChatColor.RED + "That board does not exist.");
+                    }
+                }
             }
             return true;
         } else
 
         {
             player.sendMessage(ChatColor.RED + "Correct usage: /connect4 <command> <board tag>");
+            player.sendMessage(ChatColor.RED + "list, reset, reload");
             return true;
         }
     }

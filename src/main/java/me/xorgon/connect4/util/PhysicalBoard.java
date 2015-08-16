@@ -42,6 +42,7 @@ public class PhysicalBoard {
     private boolean started = false;
     private boolean redTurn = true;
     private boolean finished = false;
+    private Vector center;
 
     private WeakSet<FallingBlock> fallingBlocks = new WeakSet<>();
 
@@ -52,7 +53,7 @@ public class PhysicalBoard {
         config = serialized;
         board = new VirtualBoard();
         loadBoard(world);
-
+        center = config.getRegion().getMaximumPoint().clone().midpoint(config.getRegion().getMinimumPoint());
     }
 
     public void resetBoard() {
@@ -101,16 +102,19 @@ public class PhysicalBoard {
 
     public void handleFallingBlock(FallingBlock block) {
         VirtualBoard.WinStatus winStatus = board.testWin();
-        if (winStatus != VirtualBoard.WinStatus.NONE) {
-            String winString = (winStatus == VirtualBoard.WinStatus.RED ? ChatColor.RED + redPlayer.getName() : ChatColor.BLUE + bluePlayer.getName())
+        if (winStatus != VirtualBoard.WinStatus.NONE && winStatus != VirtualBoard.WinStatus.DRAW) {
+            boolean redWin = winStatus == VirtualBoard.WinStatus.RED;
+            String winString = (redWin ? ChatColor.RED + redPlayer.getName() : ChatColor.BLUE + bluePlayer.getName())
                     + ChatColor.YELLOW + " wins!";
+            String announce = (redWin ? ChatColor.RED + redPlayer.getName() : ChatColor.BLUE + bluePlayer.getName())
+            + ChatColor.YELLOW + " beat " + (!redWin ? ChatColor.RED + redPlayer.getName() : ChatColor.BLUE + bluePlayer.getName()) + ChatColor.YELLOW + " at Connect 4!";
             Collection<? extends Player> players = Players.playersByRadius(Players.worldPlayers(block.getWorld()), 20).get(block.getLocation());
             for (Player player : players) {
-                player.sendMessage(winString);
+                player.sendMessage(announce);
             }
 
-            redPlayer.sendTitle(winString, (winStatus == VirtualBoard.WinStatus.RED) ? ChatColor.YELLOW + "Congratulations!" : ChatColor.YELLOW + "Better luck next time.");
-            bluePlayer.sendTitle(winString, (winStatus == VirtualBoard.WinStatus.BLUE) ? ChatColor.YELLOW + "Congratulations!" : ChatColor.YELLOW + "Better luck next time.");
+            redPlayer.sendTitle(winString, redWin ? ChatColor.YELLOW + "Congratulations!" : ChatColor.YELLOW + "Better luck next time.");
+            bluePlayer.sendTitle(winString, !redWin ? ChatColor.YELLOW + "Congratulations!" : ChatColor.YELLOW + "Better luck next time.");
 
             finished = true;
 
@@ -121,6 +125,9 @@ public class PhysicalBoard {
                     resetPlayers();
                 }
             }, 10 * 20);
+        } else if (winStatus == VirtualBoard.WinStatus.DRAW){
+            redPlayer.sendTitle(ChatColor.YELLOW + "It's a draw!","");
+            bluePlayer.sendTitle(ChatColor.YELLOW + "It's a draw!","");
         } else {
             canInteract = true;
             if (redTurn) {

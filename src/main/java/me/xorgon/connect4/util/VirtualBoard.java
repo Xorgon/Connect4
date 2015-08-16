@@ -44,13 +44,20 @@ public class VirtualBoard {
                 return hWinStatus;
             }
         }
+        boolean notDraw = false;
         for (int x = 0; x < 7; x++) {
             for (int y = 0; y < 6; y++) {
+                if (spaces[x][y] == SpaceType.EMPTY){
+                    notDraw = true;
+                }
                 WinStatus dWinStatus = diagTest(x, y);
                 if (dWinStatus != WinStatus.NONE) {
                     return dWinStatus;
                 }
             }
+        }
+        if(!notDraw){
+            return WinStatus.DRAW;
         }
         return WinStatus.NONE;
     }
@@ -129,7 +136,8 @@ public class VirtualBoard {
     public enum WinStatus {
         RED,
         BLUE,
-        NONE
+        NONE,
+        DRAW
     }
 
     public WinStatus spaceTypeToWinStatus(SpaceType s) {

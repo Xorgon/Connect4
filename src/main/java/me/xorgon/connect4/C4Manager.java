@@ -41,7 +41,7 @@ public class C4Manager {
                 plugin.getLog().severe("'%s' board has null world.", board.getId());
                 continue;
             }
-            boards.put(board.getId(), new PhysicalBoard(world, board));
+            boards.put(board.getId().toLowerCase(), new PhysicalBoard(world, board));
         }
     }
 
