@@ -15,6 +15,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -38,11 +39,15 @@ public class PhysicalBoard {
     private final C4Properties.Board config;
     private final World world;
 
+
     private boolean canInteract = true;
     private boolean started = false;
     private boolean redTurn = true;
     private boolean finished = false;
     private Vector center;
+
+    private BukkitTask initTimer;
+    private BukkitTask finTimer;
 
     private WeakSet<FallingBlock> fallingBlocks = new WeakSet<>();
 
@@ -92,6 +97,9 @@ public class PhysicalBoard {
                 fallingBlocks.add(block);
 
                 canInteract = false;
+
+                initTimer.cancel();
+                finTimer.cancel();
             } else {
                 player.sendMessage(ChatColor.RED + "You can't place a piece there.");
             }
@@ -128,6 +136,17 @@ public class PhysicalBoard {
         } else if (winStatus == VirtualBoard.WinStatus.DRAW){
             redPlayer.sendTitle(ChatColor.YELLOW + "It's a draw!","");
             bluePlayer.sendTitle(ChatColor.YELLOW + "It's a draw!","");
+
+            finished = true;
+
+            Bukkit.getScheduler().runTaskLater(Connect4Plugin.getInstance(), new Runnable() {
+                @Override
+                public void run() {
+                    resetBoard();
+                    resetPlayers();
+                }
+            }, 10 * 20);
+
         } else {
             canInteract = true;
             if (redTurn) {
@@ -137,6 +156,7 @@ public class PhysicalBoard {
                 redTurn = true;
                 redPlayer.sendTitle(ChatColor.YELLOW + "Your turn!", "");
             }
+            resetTimers();
         }
         fallingBlocks.remove(block);
     }
@@ -167,5 +187,32 @@ public class PhysicalBoard {
         }
 
         resetBoard();
+    }
+
+    public void resetTimers(){
+        initTimer = Bukkit.getScheduler().runTaskLater(Connect4Plugin.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                if (redTurn) {
+                    redPlayer.sendTitle(ChatColor.RED + "10 Seconds", "");
+                } else {
+                    bluePlayer.sendTitle(ChatColor.RED + "10 Seconds", "");
+                }
+            }
+        }, 50 * 20);
+        finTimer = Bukkit.getScheduler().runTaskLater(Connect4Plugin.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                if (redTurn) {
+                    redPlayer.sendTitle(ChatColor.RED + "You forfeit the game.", ChatColor.YELLOW + "You ran out of time.");
+                    bluePlayer.sendTitle(ChatColor.RED + redPlayer.getName() + ChatColor.YELLOW + " forfeit.", ChatColor.YELLOW + "They ran out of time.");
+                } else {
+                    bluePlayer.sendTitle(ChatColor.RED + "You forfeit the game.", ChatColor.YELLOW + "You ran out of time.");
+                    redPlayer.sendTitle(ChatColor.BLUE + bluePlayer.getName() + ChatColor.YELLOW + " forfeit.", ChatColor.YELLOW + "They ran out of time.");
+                }
+                resetBoard();
+                resetPlayers();
+            }
+        }, 60 * 20);
     }
 }

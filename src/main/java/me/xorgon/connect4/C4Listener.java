@@ -41,20 +41,25 @@ public class C4Listener implements Listener {
         for (PhysicalBoard board : manager.getBoards().values()) {
             Player redP = board.getRedPlayer();
             Player blueP = board.getBluePlayer();
+            double dSquared = p.getLocation().toVector().distanceSquared(board.getCenter());
             if ((redP != null && blueP != null) && (redP.equals(p) || blueP.equals(p))){
-                double dSquared = p.getLocation().toVector().distanceSquared(board.getCenter());
                 if (dSquared > 24 * 24){
                     if (p.equals(redP)){
-                        redP.sendTitle(ChatColor.RED + "You forfeit the game.", "");
-                        blueP.sendTitle(ChatColor.RED + p.getName() + ChatColor.YELLOW + "forfeit.", "");
+                        redP.sendTitle(ChatColor.RED + "You forfeit the game.", ChatColor.YELLOW + "You left they area.");
+                        blueP.sendTitle(ChatColor.RED + p.getName() + ChatColor.YELLOW + " forfeit.", ChatColor.YELLOW + "They left the area.");
                     } else {
-                        blueP.sendTitle(ChatColor.RED + "You forfeit the game.", "");
-                        redP.sendTitle(ChatColor.BLUE + p.getName() + ChatColor.YELLOW + "forfeit.", "");
+                        blueP.sendTitle(ChatColor.RED + "You forfeit the game.", ChatColor.YELLOW + "You left they area.");
+                        redP.sendTitle(ChatColor.BLUE + p.getName() + ChatColor.YELLOW + " forfeit.", ChatColor.YELLOW + "They left the area.");
                     }
                     board.resetPlayers();
                     board.resetBoard();
                 } else if (dSquared > 16 * 16){
-                    p.sendTitle("", ChatColor.RED + "If you go further away you will forfeit.");
+                    p.sendTitle(ChatColor.RED + "Go Back", ChatColor.YELLOW + "If you go further away you will forfeit.");
+                }
+            } else if (redP != null && redP.equals(p) && blueP == null){
+                if (dSquared > 24 * 24){
+                    p.sendMessage(ChatColor.RED + "You left Connect 4.");
+                    board.setRedPlayer(null);
                 }
             }
         }
@@ -77,6 +82,8 @@ public class C4Listener implements Listener {
                                         if (pBoard.isStarted()) {
                                             player.sendMessage(ChatColor.RED + "You are already in a game.");
                                             return;
+                                        } else {
+                                            pBoard.setRedPlayer(null);
                                         }
                                     }
                                 }
@@ -88,6 +95,8 @@ public class C4Listener implements Listener {
                                         if (pBoard.isStarted()) {
                                             player.sendMessage(ChatColor.RED + "You are already in a game.");
                                             return;
+                                        } else {
+                                            pBoard.setRedPlayer(null);
                                         }
                                     }
                                 }
@@ -95,6 +104,7 @@ public class C4Listener implements Listener {
                                 player.sendTitle(ChatColor.YELLOW + "Starting game", ChatColor.RED + "Red" + ChatColor.YELLOW + " turn, you are " + ChatColor.BLUE + "Blue.");
                                 board.getRedPlayer().sendTitle(ChatColor.YELLOW + "Starting game", ChatColor.RED + "Red" + ChatColor.YELLOW + " turn.");
                                 board.setStarted(true);
+                                board.resetTimers();
                                 board.getBoard().initialize();
                             } else if (!board.isFinished() && board.isStarted()) {
                                 if (player.equals(board.getBluePlayer()) || player.equals(board.getRedPlayer())) {
@@ -115,7 +125,9 @@ public class C4Listener implements Listener {
         Player player = event.getPlayer();
         for (PhysicalBoard board : manager.getBoards().values()) {
             if (board.getRedPlayer() != null && board.getRedPlayer().equals(player)) {
-                board.getBluePlayer().sendTitle(ChatColor.RED + "Your opponent quit.", "");
+                if (board.getBluePlayer() != null) {
+                    board.getBluePlayer().sendTitle(ChatColor.RED + "Your opponent quit.", "");
+                }
                 board.resetBoard();
                 board.resetPlayers();
             } else if (board.getBluePlayer() != null && board.getBluePlayer().equals(player)){

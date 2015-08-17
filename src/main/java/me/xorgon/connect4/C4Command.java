@@ -102,6 +102,7 @@ public class C4Command implements CommandExecutor {
                     if (manager.getBoards().containsKey(args[1].toLowerCase())) {
                         PhysicalBoard board = manager.getBoard(args[1]);
                         board.resetBoard();
+                        board.resetPlayers();
                         player.sendMessage(ChatColor.GREEN + args[1] + " has been reset");
                     } else {
                         player.sendMessage(ChatColor.RED + "That board does not exist.");
