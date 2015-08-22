@@ -34,7 +34,7 @@ public class C4Manager {
     }
 
     public void load(){
-        config = SerializationUtils.loadOrCreateProperties(plugin, file, new C4Properties(), "settings");
+        config = SerializationUtils.loadOrCreateProperties(plugin.getLog(), file, new C4Properties(), "settings");
         for (C4Properties.Board board : config.getBoards()) {
             World world = Bukkit.getWorld(board.getWorld());
             if (world == null){

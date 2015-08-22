@@ -13,7 +13,7 @@
         <package>me.xorgon.connect4</package>
         <main.class>${package}.Connect4Plugin</main.class>
 
-        <commons-bukkit.version>0.3.4-SNAPSHOT</commons-bukkit.version>
+        <commons-bukkit.version>0.3.6-SNAPSHOT</commons-bukkit.version>
         <spigot-api.version>1.8.8-R0.1-SNAPSHOT</spigot-api.version>
     </properties>
 
