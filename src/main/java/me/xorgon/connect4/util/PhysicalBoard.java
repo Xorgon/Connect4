@@ -68,6 +68,12 @@ public class PhysicalBoard {
         board.initialize();
         finished = false;
         canInteract = true;
+        if (initTimer != null){
+            initTimer.cancel();
+        }
+        if (finTimer != null){
+            finTimer.cancel();
+        }
     }
 
     public void resetPlayers() {
@@ -121,8 +127,8 @@ public class PhysicalBoard {
                 player.sendMessage(announce);
             }
 
-            redPlayer.sendTitle(winString, redWin ? ChatColor.YELLOW + "Congratulations!" : ChatColor.YELLOW + "Better luck next time.");
-            bluePlayer.sendTitle(winString, !redWin ? ChatColor.YELLOW + "Congratulations!" : ChatColor.YELLOW + "Better luck next time.");
+            TitleUtil.sendTitle(redPlayer, winString, redWin ? ChatColor.YELLOW + "Congratulations!" : ChatColor.YELLOW + "Better luck next time.");
+            TitleUtil.sendTitle(bluePlayer, winString, !redWin ? ChatColor.YELLOW + "Congratulations!" : ChatColor.YELLOW + "Better luck next time.");
 
             finished = true;
 
@@ -134,8 +140,8 @@ public class PhysicalBoard {
                 }
             }, 10 * 20);
         } else if (winStatus == VirtualBoard.WinStatus.DRAW){
-            redPlayer.sendTitle(ChatColor.YELLOW + "It's a draw!","");
-            bluePlayer.sendTitle(ChatColor.YELLOW + "It's a draw!","");
+            TitleUtil.sendTitle(redPlayer, ChatColor.YELLOW + "It's a draw!","");
+            TitleUtil.sendTitle(bluePlayer, ChatColor.YELLOW + "It's a draw!","");
 
             finished = true;
 
@@ -151,10 +157,10 @@ public class PhysicalBoard {
             canInteract = true;
             if (redTurn) {
                 redTurn = false;
-                bluePlayer.sendTitle(ChatColor.YELLOW + "Your turn!", "");
+                TitleUtil.sendTitle(bluePlayer, ChatColor.YELLOW + "Your turn!");
             } else {
                 redTurn = true;
-                redPlayer.sendTitle(ChatColor.YELLOW + "Your turn!", "");
+                TitleUtil.sendTitle(redPlayer, ChatColor.YELLOW + "Your turn!");
             }
             resetTimers();
         }
@@ -194,9 +200,9 @@ public class PhysicalBoard {
             @Override
             public void run() {
                 if (redTurn) {
-                    redPlayer.sendTitle(ChatColor.RED + "10 Seconds", "");
+                    TitleUtil.sendTitle(redPlayer, ChatColor.RED + "10 Seconds");
                 } else {
-                    bluePlayer.sendTitle(ChatColor.RED + "10 Seconds", "");
+                    TitleUtil.sendTitle(bluePlayer, ChatColor.RED + "10 Seconds");
                 }
             }
         }, 50 * 20);
@@ -204,11 +210,11 @@ public class PhysicalBoard {
             @Override
             public void run() {
                 if (redTurn) {
-                    redPlayer.sendTitle(ChatColor.RED + "You forfeit the game.", ChatColor.YELLOW + "You ran out of time.");
-                    bluePlayer.sendTitle(ChatColor.RED + redPlayer.getName() + ChatColor.YELLOW + " forfeit.", ChatColor.YELLOW + "They ran out of time.");
+                    TitleUtil.sendTitle(redPlayer, ChatColor.RED + "You forfeit the game.", ChatColor.YELLOW + "You ran out of time.");
+                    TitleUtil.sendTitle(bluePlayer, ChatColor.RED + redPlayer.getName() + ChatColor.YELLOW + " forfeit.", ChatColor.YELLOW + "They ran out of time.");
                 } else {
-                    bluePlayer.sendTitle(ChatColor.RED + "You forfeit the game.", ChatColor.YELLOW + "You ran out of time.");
-                    redPlayer.sendTitle(ChatColor.BLUE + bluePlayer.getName() + ChatColor.YELLOW + " forfeit.", ChatColor.YELLOW + "They ran out of time.");
+                    TitleUtil.sendTitle(bluePlayer, ChatColor.RED + "You forfeit the game.", ChatColor.YELLOW + "You ran out of time.");
+                    TitleUtil.sendTitle(redPlayer, ChatColor.BLUE + bluePlayer.getName() + ChatColor.YELLOW + " forfeit.", ChatColor.YELLOW + "They ran out of time.");
                 }
                 resetBoard();
                 resetPlayers();
