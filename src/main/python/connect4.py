@@ -5,11 +5,17 @@ import os
 board = numpy.zeros((7,6))
 
 def c4():
+    """
+    Starts a game of Connect 4.
+    """
     resetBoard()
     outputBoard()
     takeTurn()
 
 def resetBoard():
+    """
+    Resets the board.
+    """
     for x in range(0,7):
         for y in range(0,6):
             board[x][y] = 0
@@ -34,7 +40,15 @@ def placePiece(x, color):
         
         
 def testWin():
+    """
+    Tests the win status of the game
     
+    returns win status
+    0 -> No win
+    1 -> X win
+    2 -> Y win
+    3 -> Draw
+    """
 
     """Vertical Testing"""
     for x in range(0,7):
@@ -65,6 +79,11 @@ def testWin():
       
     
 def hTest(y):
+    """
+    Tests for horizontal wins
+    
+    returns win status
+    """
     lastSpace = 0
     concSpaces = 1
     for x in range(0,7):
@@ -79,6 +98,11 @@ def hTest(y):
     
     
 def vTest(x):
+    """
+    Tests for vertical wins
+    
+    returns win status
+    """
     lastSpace = 0
     concSpaces = 1
     for y in range(0,6):
@@ -93,6 +117,11 @@ def vTest(x):
 
 
 def diagTest(x, y):
+    """
+    Tests for diagonal wins
+    
+    returns win status
+    """
     concSpacesUp = 1
     concSpacesDown = 1
     lastSpaceUp = board[x][y]
@@ -118,6 +147,10 @@ def diagTest(x, y):
 
 
 def takeTurn():
+    """
+    Function governing the cycle of turns.
+    """
+    
     win = 0
     turn = 1
     while win == 0:
