@@ -5,9 +5,14 @@ import os
 board = numpy.zeros((7,6))
 
 def c4():
-    board = numpy.zeros((7,6))
+    resetBoard()
     outputBoard()
     takeTurn()
+
+def resetBoard():
+    for x in range(0,7):
+        for y in range(0,6):
+            board[x][y] = 0
 
 def placePiece(x, color):
     """
@@ -124,7 +129,13 @@ def takeTurn():
         notPlaced = True
         while notPlaced:
             inpt = input()
-            if inpt == "stop":
+            if inpt == "stop" or inpt == "ff":
+                notPlaced = False
+                win == 4
+                if turn == 1:
+                    print("X Surrenders.")
+                else:
+                    print("O Surrenders.")
                 return
             isInteger = True            
             try:
@@ -151,7 +162,7 @@ def takeTurn():
         print("O Wins!")
     elif win == 3:
         print("It's a draw!")
-            
+        
     
 
 def outputBoard():
