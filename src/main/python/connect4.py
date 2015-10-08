@@ -9,6 +9,8 @@ def placePiece(x, color):
     
     x -> Column Number
     color -> 1 or 2 depending on team
+    
+    returns boolean of piece placement success
     """
     print(x)
     print(color)
@@ -117,3 +119,61 @@ def diagTest(x, y):
     }
         
 """
+
+
+def takeTurn():
+    win = 0
+    turn = 1
+    while win == 0:
+        slot = None
+        if turn == 1:
+            print("X Turn.")
+        else:
+            print("O Turn.")
+        notPlaced = True
+        while notPlaced:
+            inpt = input()
+            isInteger = True            
+            try:
+                slot = int(inpt)
+            except ValueError:
+                isInteger = False
+                print("Invalid input, slot must be a number between 0 and 6")
+            if isInteger:
+                if slot > 6 or slot < 0:
+                    print("Invalid input, slot must be a number between 0 and 6")
+                if placePiece(slot, turn):
+                    notPlaced = False
+                else:
+                    print("You can't go there.")
+        outputBoard()
+        if turn == 1:
+            turn = 2
+        else:
+            turn = 1
+        win = testWin()
+    if win == 1:
+        print("X Wins!")
+    else:
+        print("O Wins!")
+            
+    
+
+def outputBoard():
+    """Outputs the board to the console."""    
+    print("= 0 1 2 3 4 5 6 =")
+    for ny in range(0,6):
+        y = 5-ny
+        line = "| "
+        for x in range(0,7):
+            if board[x][y] == 1:
+                line = line + "X "
+            elif board[x][y] == 2:
+                line = line + "O "
+            else:
+                line = line + "  "
+        line = line + "|"
+        print(line)   
+    print("= 0 1 2 3 4 5 6 =")         
+                 
+                    
