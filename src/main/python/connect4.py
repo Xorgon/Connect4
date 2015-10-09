@@ -6,18 +6,14 @@ board = numpy.zeros((7, 6))
 
 
 def c4():
-    """
-    Starts a game of Connect 4.
-    """
+    """Starts a game of Connect 4."""
     reset_board()
     output_board()
     take_turn()
 
 
 def reset_board():
-    """
-    Resets the board.
-    """
+    """Resets the board."""
     for x in range(0, 7):
         for y in range(0, 6):
             board[x][y] = 0
@@ -27,8 +23,8 @@ def place_piece(x, color):
     """
     Places a piece on the board.
     
-    x -> Column Number
-    color -> 1 or 2 depending on team
+    x -- Column Number
+    color -- 1 or 2 depending on team
     
     returns boolean of piece placement success
     """
@@ -47,12 +43,11 @@ def test_win():
     Tests the win status of the game
     
     returns win status
-    0 -> No win
-    1 -> X win
-    2 -> Y win
-    3 -> Draw
+    0 -- No win
+    1 -- X win
+    2 -- Y win
+    3 -- Draw
     """
-
     """Vertical Testing"""
     for x in range(0, 7):
         v_win_status = v_test(x)
@@ -150,10 +145,7 @@ def diag_test(x, y):
 
 
 def take_turn():
-    """
-    Function governing the cycle of turns.
-    """
-
+    """Function governing the cycle of turns."""
     win = 0
     turn = 1
     while win == 0:
