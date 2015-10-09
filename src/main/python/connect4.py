@@ -2,25 +2,28 @@
 import numpy
 import os
 
-board = numpy.zeros((7,6))
+board = numpy.zeros((7, 6))
+
 
 def c4():
     """
     Starts a game of Connect 4.
     """
-    resetBoard()
-    outputBoard()
-    takeTurn()
+    reset_board()
+    output_board()
+    take_turn()
 
-def resetBoard():
+
+def reset_board():
     """
     Resets the board.
     """
-    for x in range(0,7):
-        for y in range(0,6):
+    for x in range(0, 7):
+        for y in range(0, 6):
             board[x][y] = 0
 
-def placePiece(x, color):
+
+def place_piece(x, color):
     """
     Places a piece on the board.
     
@@ -31,15 +34,15 @@ def placePiece(x, color):
     """
     print(x)
     print(color)
-    for y in range(0,6):
+    for y in range(0, 6):
         if board[x][y] == 0:
             print(y)
             board[x][y] = color
             return True
     return False
-        
-        
-def testWin():
+
+
+def test_win():
     """
     Tests the win status of the game
     
@@ -51,106 +54,106 @@ def testWin():
     """
 
     """Vertical Testing"""
-    for x in range(0,7):
-        vWinStatus = vTest(x)
-        if vWinStatus != 0:
-            return vWinStatus
+    for x in range(0, 7):
+        v_win_status = v_test(x)
+        if v_win_status != 0:
+            return v_win_status
 
-    """Horizontal Testing"""    
-    for y in range(0,6):
-        hWinStatus = hTest(y)
-        if hWinStatus != 0:
-            return hWinStatus
-    
+    """Horizontal Testing"""
+    for y in range(0, 6):
+        h_win_status = h_test(y)
+        if h_win_status != 0:
+            return h_win_status
+
     """Diagonal Testing and Draw Testing"""
     draw = True
-    for x in range(0,7):
-        for y in range(0,6):
+    for x in range(0, 7):
+        for y in range(0, 6):
             if board[x][y] == 0:
                 draw = False
-            dWinStatus = diagTest(x,y)
-            if dWinStatus != 0:
-                return dWinStatus
-                
+            d_win_status = diag_test(x, y)
+            if d_win_status != 0:
+                return d_win_status
+
     if draw:
         return 3
-    
+
     return 0
-      
-    
-def hTest(y):
+
+
+def h_test(y):
     """
     Tests for horizontal wins
     
     returns win status
     """
-    lastSpace = 0
-    concSpaces = 1
-    for x in range(0,7):
-        if board[x][y] == lastSpace:
-            concSpaces += 1
+    last_space = 0
+    conc_spaces = 1
+    for x in range(0, 7):
+        if board[x][y] == last_space:
+            conc_spaces += 1
         else:
-            concSpaces = 1
-            lastSpace = board[x][y]
-        if concSpaces == 4 and lastSpace != 0:
-            return lastSpace
+            conc_spaces = 1
+            last_space = board[x][y]
+        if conc_spaces == 4 and last_space != 0:
+            return last_space
     return 0
-    
-    
-def vTest(x):
+
+
+def v_test(x):
     """
     Tests for vertical wins
     
     returns win status
     """
-    lastSpace = 0
-    concSpaces = 1
-    for y in range(0,6):
-        if board[x][y] == lastSpace:
-            concSpaces += 1
+    last_space = 0
+    conc_spaces = 1
+    for y in range(0, 6):
+        if board[x][y] == last_space:
+            conc_spaces += 1
         else:
-            concSpaces = 1
-            lastSpace = board[x][y]
-        if concSpaces == 4 and lastSpace != 0:
-            return lastSpace
+            conc_spaces = 1
+            last_space = board[x][y]
+        if conc_spaces == 4 and last_space != 0:
+            return last_space
     return 0
 
 
-def diagTest(x, y):
+def diag_test(x, y):
     """
     Tests for diagonal wins
     
     returns win status
     """
-    concSpacesUp = 1
-    concSpacesDown = 1
-    lastSpaceUp = board[x][y]
-    lastSpaceDown = board[x][y]
+    conc_spaces_up = 1
+    conc_spaces_down = 1
+    last_space_up = board[x][y]
+    last_space_down = board[x][y]
     if board[x][y] == 0:
         return 0
-    for i in range(1,4):
+    for i in range(1, 4):
         if (x + i) < 7:
             cont = False
-            if (y + i < 6 and board[x+i][y+i] == lastSpaceUp):
-                concSpacesUp += 1
+            if y + i < 6 and board[x + i][y + i] == last_space_up:
+                conc_spaces_up += 1
                 cont = True
-            if (y - i >= 0 and board[x+i][y-i] == lastSpaceDown):
-                concSpacesDown += 1
+            if y - i >= 0 and board[x + i][y - i] == last_space_down:
+                conc_spaces_down += 1
                 cont = True
-            if cont == False:
+            if not cont:
                 return 0
-            if concSpacesUp == 4:
-                return lastSpaceUp
-            if concSpacesDown == 4:
-                return lastSpaceDown
+            if conc_spaces_up == 4:
+                return last_space_up
+            if conc_spaces_down == 4:
+                return last_space_down
     return 0
 
 
-def takeTurn():
+def take_turn():
     """
     Function governing the cycle of turns.
     """
-    
+
     win = 0
     turn = 1
     while win == 0:
@@ -159,61 +162,60 @@ def takeTurn():
             print("X Turn.")
         else:
             print("O Turn.")
-        notPlaced = True
-        while notPlaced:
+        not_placed = True
+        while not_placed:
             inpt = input()
             if inpt == "stop" or inpt == "ff":
-                notPlaced = False
+                not_placed = False
                 win == 4
                 if turn == 1:
                     print("X Surrenders.")
                 else:
                     print("O Surrenders.")
                 return
-            isInteger = True            
+            is_integer = True
             try:
                 slot = int(inpt)
             except ValueError:
-                isInteger = False
+                is_integer = False
                 print("Invalid input, slot must be a number between 0 and 6")
-            if isInteger:
+            if is_integer:
                 if slot > 6 or slot < 0:
                     print("Invalid input, slot must be a number between 0 and 6")
-                elif placePiece(slot, turn):
-                    notPlaced = False
+                elif place_piece(slot, turn):
+                    not_placed = False
                 else:
                     print("You can't go there.")
-        outputBoard()
+        output_board()
         if turn == 1:
             turn = 2
         else:
             turn = 1
-        win = testWin()
+        win = test_win()
     if win == 1:
         print("X Wins!")
     elif win == 2:
         print("O Wins!")
     elif win == 3:
         print("It's a draw!")
-        
-    
 
-def outputBoard():
-    """Outputs the board to the console."""    
+
+def output_board():
+    """Outputs the board to the console."""
     os.system('cls' if os.name == 'nt' else 'clear')
     print("= 0 1 2 3 4 5 6 =")
-    for ny in range(0,6):
-        y = 5-ny
+    for ny in range(0, 6):
+        y = 5 - ny
         line = "| "
-        for x in range(0,7):
+        for x in range(0, 7):
             if board[x][y] == 1:
-                line = line + "X "
+                line += "X "
             elif board[x][y] == 2:
-                line = line + "O "
+                line += "O "
             else:
-                line = line + "  "
-        line = line + "|"
-        print(line)   
-    print("= 0 1 2 3 4 5 6 =")         
-                 
-                    
+                line += "  "
+        line += "|"
+        print(line)
+    print("= 0 1 2 3 4 5 6 =")
+
+c4()
