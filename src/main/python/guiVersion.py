@@ -9,9 +9,11 @@ class GUIBoard(QtGui.QWidget):
     vBoard = connect4.VirtualBoard()
 
     turn = 1
+    window = None
 
-    def __init__(self):
+    def __init__(self, window):
         super(GUIBoard, self).__init__()
+        self.window = window
 
     def reset_board(self):
         self.vBoard.reset_board()
@@ -45,25 +47,32 @@ class GUIBoard(QtGui.QWidget):
             x_dist = left_x + x_incr * x
             qp.drawLine(x_dist, bottom_y, x_dist, bottom_y - box_height)
 
-    def take_turn(self, slot):
-        if self.vBoard.place_piece(slot, self.turn):
-            if self.turn == 1:
-                self.turn = 2
-            else:
-                self.turn = 1
-            win = self.vBoard.test_win()
-            if win == 1:
-                print("X Wins!")
-            elif win == 2:
-                print("O Wins!")
-            elif win == 3:
-                print("It's a draw!")
-        else:
-            """TODO: Failed to place piece message."""
+    @QtCore.pyqtSlot(int)
+    def takeTurn(self):
+        sender = self.sender()
+        buttons = self.window.buttons
+        for indx in range(0, 7):
+            if buttons[indx] is sender:
+                if self.vBoard.place_piece(indx, self.turn):
+                    print(self.vBoard.board)
+                    if self.turn == 1:
+                        self.turn = 2
+                    else:
+                        self.turn = 1
+                    win = self.vBoard.test_win()
+                    if win == 1:
+                        print("X Wins!")
+                    elif win == 2:
+                        print("O Wins!")
+                    elif win == 3:
+                        print("It's a draw!")
+                else:
+                    """TODO: Failed to place piece message."""
+
 
 class C4GUIWindow(QtGui.QWidget):
     guiboard = None
-    buttons = [0,0,0,0,0,0,0]
+    buttons = [0, 0, 0, 0, 0, 0, 0]
 
     def __init__(self):
         super(C4GUIWindow, self).__init__()
@@ -77,7 +86,7 @@ class C4GUIWindow(QtGui.QWidget):
         self.center()
         self.setWindowTitle('Connect4')
         self.show()
-        self.guiboard = GUIBoard()
+        self.guiboard = GUIBoard(self)
 
         positions = [(i, j) for i in range(3) for j in range(7)]
 
@@ -87,10 +96,11 @@ class C4GUIWindow(QtGui.QWidget):
             elif p == (1, 0):
                 grid.addWidget(self.guiboard, p[0], p[1], 1, 7)
             elif p[0] == 2:
-                button = QtGui.QPushButton('Place', self)
+                button = QtGui.QPushButton('&Place', self)
+                self.buttons[p[1]] = button
                 grid.addWidget(button, *p)
                 button.setStyleSheet("background-color: red")
-                button.clicked().connect(self.guiboard.take_turn)
+                button.clicked.connect(self.guiboard.takeTurn)
                 self.buttons[p[1]] = button
 
     def paintEvent(self, event):

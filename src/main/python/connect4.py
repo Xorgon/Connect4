@@ -23,8 +23,6 @@ class VirtualBoard():
 
         returns boolean of piece placement success
         """
-        print(x)
-        print(color)
         for y in range(0, 6):
             if self.board[x][y] == 0:
                 self.board[x][y] = color
