@@ -26,7 +26,7 @@ class VirtualBoard():
         for y in range(0, 6):
             if self.board[x][y] == 0:
                 self.board[x][y] = color
-                return True
+                return [x,y]
         return False
 
     def test_win(self):

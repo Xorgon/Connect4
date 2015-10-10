@@ -1,12 +1,38 @@
-__author__ = 'Elijah'
-
 import sys
 import connect4
+import math
 from PyQt4 import QtCore, QtGui
+
+
+class Piece():
+    x = None
+    y = None
+    color = None
+    guiboard = None
+
+    def __init__(self, x, y, color, guiboard):
+        self.x = x
+        self.y = y
+        self.color = color
+        self.guiboard = guiboard
+
+    def get_rect(self):
+        gb = self.guiboard.geometry()
+        b_width = gb.width()
+        b_height = gb.height()
+        p_width = b_width / 7.0
+        p_height = math.ceil(b_height / 6.0)
+        t_left = gb.topLeft()
+        x = t_left.x() + p_width * self.x
+        y = t_left.y() + b_height - p_height * (self.y + 1)
+        return QtCore.QRect(x, y, p_width, p_height)
 
 
 class GUIBoard(QtGui.QWidget):
     vBoard = connect4.VirtualBoard()
+    pieces = []
+
+    qp = None
 
     turn = 1
     window = None
@@ -18,24 +44,32 @@ class GUIBoard(QtGui.QWidget):
     def reset_board(self):
         self.vBoard.reset_board()
         self.turn = 1
+        self.pieces = []
+        self.window.set_buttons_active(True)
+        self.window.text_area.setText("Red Turn")
 
     def draw_board(self, qp):
-        color = QtGui.QColor(0, 0, 0)
-        color.setNamedColor('#d4d4d4')
-        qp.setPen(color)
+        self.qp = qp
+        color = QtGui.QColor(100, 100, 100)
+        pen = QtGui.QPen(color)
+        pen.setStyle(QtCore.Qt.NoPen)
+        qp.setPen(pen)
 
-        qp.setBrush(QtGui.QColor(100, 100, 100))
-        rect = QtCore.QRect(self.geometry())
-        qp.drawRect(rect)
+        brush = QtGui.QBrush(color)
+        qp.setBrush(brush)
 
-        pen = QtGui.QPen(QtCore.Qt.black, 1, QtCore.Qt.SolidLine)
+        qp.drawRect(self.geometry())
 
-        left_x = rect.topLeft().x()
-        bottom_y = rect.bottomRight().y()
-        box_width = rect.width()
-        box_height = rect.height()
+        pen = QtGui.QPen(QtCore.Qt.black, 2, QtCore.Qt.SolidLine)
+
+        left_x = self.geometry().topLeft().x()
+        bottom_y = self.geometry().bottomRight().y()
+        box_width = self.geometry().width()
+        box_height = self.geometry().height()
         x_incr = box_width / 7.0
         y_incr = box_height / 6.0
+
+        self.draw_pieces(qp)
 
         for y in range(1, 6):
             qp.setPen(pen)
@@ -47,32 +81,66 @@ class GUIBoard(QtGui.QWidget):
             x_dist = left_x + x_incr * x
             qp.drawLine(x_dist, bottom_y, x_dist, bottom_y - box_height)
 
+    def draw_pieces(self, qp):
+        qp.setPen(QtCore.Qt.NoPen)
+        self.window.update()
+        for p in self.pieces:
+            brush = QtGui.QBrush(p.color)
+            qp.setBrush(brush)
+            qp.drawRect(p.get_rect())
+
+    def add_piece(self, p_x, p_y):
+        color = None
+        if self.turn == 1:
+            color = QtGui.QColor(255, 000, 000)
+        else:
+            color = QtGui.QColor(000, 000, 255)
+
+        piece = Piece(p_x, p_y, color, self)
+
+        self.pieces.append(piece)
+
     @QtCore.pyqtSlot(int)
-    def takeTurn(self):
+    def take_turn(self):
         sender = self.sender()
         buttons = self.window.buttons
         for indx in range(0, 7):
             if buttons[indx] is sender:
-                if self.vBoard.place_piece(indx, self.turn):
-                    print(self.vBoard.board)
+                piece = self.vBoard.place_piece(indx, self.turn)
+                if piece:
+                    self.add_piece(piece[0], piece[1])
                     if self.turn == 1:
                         self.turn = 2
+                        self.window.text_area.setText("Blue Turn")
+                        for b in buttons:
+                            b.setStyleSheet("background-color: blue")
                     else:
                         self.turn = 1
+                        self.window.text_area.setText("Red Turn")
+                        for b in buttons:
+                            b.setStyleSheet("background-color: red")
                     win = self.vBoard.test_win()
                     if win == 1:
-                        print("X Wins!")
+                        self.window.text_area.setText("Red Wins!")
+                        self.window.set_buttons_active(False)
+                        self.window.check_play_again()
                     elif win == 2:
-                        print("O Wins!")
+                        self.window.text_area.setText("Blue Wins!")
+                        self.window.set_buttons_active(False)
+                        self.window.check_play_again()
                     elif win == 3:
-                        print("It's a draw!")
+                        self.window.text_area.setText("It's a draw!")
+                        self.window.set_buttons_active(False)
+                        self.window.check_play_again()
                 else:
-                    """TODO: Failed to place piece message."""
+                    self.window.text_area.setText("You can't place a piece there.")
+        self.window.update()
 
 
 class C4GUIWindow(QtGui.QWidget):
     guiboard = None
     buttons = [0, 0, 0, 0, 0, 0, 0]
+    text_area = None
 
     def __init__(self):
         super(C4GUIWindow, self).__init__()
@@ -84,6 +152,8 @@ class C4GUIWindow(QtGui.QWidget):
 
         self.resize(450, 380)
         self.center()
+        self.setStyleSheet("QWidget{background-color: black; color: white;} "
+                           "QPushButton { background-color: grey; color: black;}")
         self.setWindowTitle('Connect4')
         self.show()
         self.guiboard = GUIBoard(self)
@@ -92,20 +162,32 @@ class C4GUIWindow(QtGui.QWidget):
 
         for p in positions:
             if p == (0, 0):
-                grid.addWidget(QtGui.QPushButton('Button', self), p[0], p[1], 1, 7)
+                self.text_area = QtGui.QLabel()
+                height = self.geometry().height()
+                self.text_area.setFixedHeight(height / 9)
+                style_string = "background-color: white; color: black; font-size:" + str(int(height / 9) - 10) + "px"
+                self.text_area.setStyleSheet(style_string)
+                self.text_area.setText("Red Turn")
+                self.text_area.setAlignment(QtCore.Qt.AlignCenter)
+                grid.addWidget(self.text_area, p[0], p[1], 1, 7)
             elif p == (1, 0):
                 grid.addWidget(self.guiboard, p[0], p[1], 1, 7)
             elif p[0] == 2:
-                button = QtGui.QPushButton('&Place', self)
+                button = QtGui.QPushButton('', self)
                 self.buttons[p[1]] = button
                 grid.addWidget(button, *p)
                 button.setStyleSheet("background-color: red")
-                button.clicked.connect(self.guiboard.takeTurn)
+                button.clicked.connect(self.guiboard.take_turn)
                 self.buttons[p[1]] = button
 
     def paintEvent(self, event):
+        height = self.geometry().height()
+        self.text_area.setFixedHeight(height / 9)
+        style_string = "background-color: white; color: black; font-size:" + str(int(height / 9 - height / 20)) + "px"
+        self.text_area.setStyleSheet(style_string)
         qp = QtGui.QPainter()
         qp.begin(self)
+        self.guiboard.update()
         self.guiboard.draw_board(qp)
         qp.end()
 
@@ -114,6 +196,24 @@ class C4GUIWindow(QtGui.QWidget):
         size = self.geometry()
         self.move((screen.width() - size.width()) / 2,
                   (screen.height() - size.height()) / 2)
+
+    def set_buttons_active(self, active):
+        if active:
+            for b in self.buttons:
+                b.setStyleSheet("background-color: red")
+                b.clicked.connect(self.guiboard.take_turn)
+        else:
+            for b in self.buttons:
+                b.setStyleSheet("background-color: grey")
+                b.clicked.disconnect(self.guiboard.take_turn)
+
+    def check_play_again(self):
+        box = QtGui.QMessageBox()
+        box.setStyleSheet("background-color: grey")
+        reply = box.question(self, "", "Play again?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+
+        if reply == QtGui.QMessageBox.Yes:
+            self.guiboard.reset_board()
 
 
 def main():
