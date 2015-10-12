@@ -109,31 +109,32 @@ class GUIBoard(QtGui.QWidget):
                 piece = self.vBoard.place_piece(indx, self.turn)
                 if piece:
                     self.add_piece(piece[0], piece[1])
+                    text_area = self.window.text_area
                     if self.turn == 1:
                         self.turn = 2
-                        self.window.text_area.setText("Blue Turn")
+                        text_area.setText("Blue Turn")
                         for b in buttons:
                             b.setStyleSheet("background-color: blue")
                     else:
                         self.turn = 1
-                        self.window.text_area.setText("Red Turn")
+                        text_area.setText("Red Turn")
                         for b in buttons:
                             b.setStyleSheet("background-color: red")
                     win = self.vBoard.test_win()
                     if win == 1:
-                        self.window.text_area.setText("Red Wins!")
+                        text_area.setText("Red Wins!")
                         self.window.set_buttons_active(False)
                         self.window.check_play_again()
                     elif win == 2:
-                        self.window.text_area.setText("Blue Wins!")
+                        text_area.setText("Blue Wins!")
                         self.window.set_buttons_active(False)
                         self.window.check_play_again()
                     elif win == 3:
-                        self.window.text_area.setText("It's a draw!")
+                        text_area.setText("It's a draw!")
                         self.window.set_buttons_active(False)
                         self.window.check_play_again()
                 else:
-                    self.window.text_area.setText("You can't place a piece there.")
+                    text_area.setText("You can't place a piece there.")
         self.window.update()
 
 
