@@ -2,7 +2,6 @@ import sys
 import connect4
 import math
 from PyQt4 import QtCore, QtGui
-import c4FileIO
 
 
 class Piece():
@@ -110,31 +109,32 @@ class GUIBoard(QtGui.QWidget):
                 piece = self.vBoard.place_piece(indx, self.turn)
                 if piece:
                     self.add_piece(piece[0], piece[1])
+                    text_area = self.window.text_area
                     if self.turn == 1:
                         self.turn = 2
-                        self.window.text_area.setText("Blue Turn")
+                        text_area.setText("Blue Turn")
                         for b in buttons:
                             b.setStyleSheet("background-color: blue")
                     else:
                         self.turn = 1
-                        self.window.text_area.setText("Red Turn")
+                        text_area.setText("Red Turn")
                         for b in buttons:
                             b.setStyleSheet("background-color: red")
                     win = self.vBoard.test_win()
-                    if win != 0:
-                        if win == 1:
-                            self.window.text_area.setText("Red Wins!")
-                            self.window.fileio.red_wins += 1
-                        elif win == 2:
-                            self.window.text_area.setText("Blue Wins!")
-                            self.window.fileio.blue_wins += 1
-                        elif win == 3:
-                            self.window.text_area.setText("It's a draw!")
-                        self.window.fileio.serialize_file()
+                    if win == 1:
+                        text_area.setText("Red Wins!")
+                        self.window.set_buttons_active(False)
+                        self.window.check_play_again()
+                    elif win == 2:
+                        text_area.setText("Blue Wins!")
+                        self.window.set_buttons_active(False)
+                        self.window.check_play_again()
+                    elif win == 3:
+                        text_area.setText("It's a draw!")
                         self.window.set_buttons_active(False)
                         self.window.check_play_again()
                 else:
-                    self.window.text_area.setText("You can't place a piece there.")
+                    text_area.setText("You can't place a piece there.")
         self.window.update()
 
 
@@ -142,11 +142,9 @@ class C4GUIWindow(QtGui.QWidget):
     guiboard = None
     buttons = [0, 0, 0, 0, 0, 0, 0]
     text_area = None
-    fileio = None
 
     def __init__(self):
         super(C4GUIWindow, self).__init__()
-        self.fileio = c4FileIO.C4FileIO()
         self.initUI()
 
     def initUI(self):
@@ -184,18 +182,15 @@ class C4GUIWindow(QtGui.QWidget):
                 self.buttons[p[1]] = button
 
     def paintEvent(self, event):
+        height = self.geometry().height()
+        self.text_area.setFixedHeight(height / 9)
+        style_string = "background-color: white; color: black; font-size:" + str(int(height / 9 - height / 20)) + "px"
+        self.text_area.setStyleSheet(style_string)
         qp = QtGui.QPainter()
         qp.begin(self)
         self.guiboard.update()
         self.guiboard.draw_board(qp)
         qp.end()
-
-    def set_rel_font(self, factor):
-        height = self.geometry().height()
-        self.text_area.setFixedHeight(height / 9)
-        size = (height / 9 - height / 20) / factor
-        style_string = "background-color: white; color: black; font-size:" + str(int(size)) + "px"
-        self.text_area.setStyleSheet(style_string)
 
     def center(self):
         screen = QtGui.QDesktopWidget().screenGeometry()
@@ -207,19 +202,11 @@ class C4GUIWindow(QtGui.QWidget):
         if active:
             for b in self.buttons:
                 b.setStyleSheet("background-color: red")
-                b.clicked.disconnect(self.show_wins)
                 b.clicked.connect(self.guiboard.take_turn)
         else:
             for b in self.buttons:
                 b.setStyleSheet("background-color: grey")
                 b.clicked.disconnect(self.guiboard.take_turn)
-                b.clicked.connect(self.show_wins)
-
-    @QtCore.pyqtSlot()
-    def show_wins(self):
-        self.set_rel_font(2)
-        self.text_area.setText("Red wins: " + str(self.fileio.red_wins) + "\n" +
-                               "Blue wins: " + str(self.fileio.blue_wins))
 
     def check_play_again(self):
         box = QtGui.QMessageBox()
@@ -228,7 +215,6 @@ class C4GUIWindow(QtGui.QWidget):
 
         if reply == QtGui.QMessageBox.Yes:
             self.guiboard.reset_board()
-            self.set_rel_font(1)
 
 
 def main():
