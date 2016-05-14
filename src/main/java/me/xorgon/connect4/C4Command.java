@@ -1,22 +1,11 @@
 package me.xorgon.connect4;
 
 import me.xorgon.connect4.util.PhysicalBoard;
-import me.xorgon.connect4.util.Selection;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Connect4 commands class.
@@ -62,10 +51,10 @@ public class C4Command implements CommandExecutor {
                 s.setPoint2(targetBlock.getLocation().toVector());
                 player.sendMessage("Point 2 set.");
             }*/
-            if (args[0].equalsIgnoreCase("list")){
+            if (args[0].equalsIgnoreCase("list")) {
                 manager.getBoards().keySet().forEach((s) -> player.sendMessage(ChatColor.GREEN + s));
             }
-            if (args[0].equalsIgnoreCase("reload")){
+            if (args[0].equalsIgnoreCase("reload")) {
                 for (PhysicalBoard board : manager.getBoards().values()) {
                     board.resetBoard();
                     board.resetPlayers();
@@ -98,7 +87,7 @@ public class C4Command implements CommandExecutor {
                     //manager.addBoard(args[1]);
                     player.sendMessage("Board " + args[1] + " has been created.");
                 }*/
-                if (args[0].equalsIgnoreCase("reset")){
+                if (args[0].equalsIgnoreCase("reset")) {
                     if (manager.getBoards().containsKey(args[1].toLowerCase())) {
                         PhysicalBoard board = manager.getBoard(args[1]);
                         board.resetBoard();

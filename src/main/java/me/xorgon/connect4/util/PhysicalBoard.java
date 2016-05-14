@@ -4,9 +4,6 @@ import com.google.common.base.Preconditions;
 import com.supaham.commons.bukkit.players.Players;
 import com.supaham.commons.bukkit.utils.BlockFaceUtils;
 import com.supaham.commons.utils.WeakSet;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
 import me.xorgon.connect4.C4Properties;
 import me.xorgon.connect4.Connect4Plugin;
 import org.bukkit.*;
@@ -23,8 +20,6 @@ import java.util.*;
 /**
  * Created by Elijah on 14/08/2015.
  */
-@Getter
-@Setter
 public class PhysicalBoard {
 
     private Map<Integer, Block> slots = new HashMap<>();
@@ -51,7 +46,7 @@ public class PhysicalBoard {
 
     private WeakSet<FallingBlock> fallingBlocks = new WeakSet<>();
 
-    public PhysicalBoard(@NonNull World world, @NonNull C4Properties.Board serialized) {
+    public PhysicalBoard(World world, C4Properties.Board serialized) {
         Preconditions.checkArgument(BlockFaceUtils.isHorizontal(serialized.getFace()), "Block face must be horizontal.");
 
         this.world = world;
@@ -220,5 +215,53 @@ public class PhysicalBoard {
                 resetPlayers();
             }
         }, 60 * 20);
+    }
+
+    public WeakSet<FallingBlock> getFallingBlocks() {
+        return fallingBlocks;
+    }
+
+    public Player getRedPlayer() {
+        return redPlayer;
+    }
+
+    public Player getBluePlayer() {
+        return bluePlayer;
+    }
+
+    public Vector getCenter() {
+        return center;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setRedPlayer(Player redPlayer) {
+        this.redPlayer = redPlayer;
+    }
+
+    public void setBluePlayer(Player bluePlayer) {
+        this.bluePlayer = bluePlayer;
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public boolean isCanInteract() {
+        return canInteract;
+    }
+
+    public Map<Block, Integer> getButtons() {
+        return buttons;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+
+    public VirtualBoard getBoard() {
+        return board;
     }
 }

@@ -2,5 +2,12 @@ name: ${artifactId}
 version: ${version}
 main: ${main.class}
 permissions:
+  c4.admin:
+    description: Allows administration of Connect4.
+    default: false
 commands:
   c4:
+    description: Connect4 administration commands.
+    permission: c4.admin
+    usage: /c4 <list, reset, reload>
+    aliases: connect4
