@@ -4,7 +4,7 @@ main: ${main.class}
 permissions:
   c4.admin:
     description: Allows administration of Connect4.
-    default: false
+    default: op
 commands:
   c4:
     description: Connect4 administration commands.
