@@ -1,5 +1,6 @@
 package me.xorgon.connect4;
 
+import com.supaham.commons.bukkit.CommonSettings;
 import com.supaham.commons.bukkit.area.CuboidRegion;
 import com.supaham.commons.bukkit.serializers.MaterialDataSerializer;
 import org.bukkit.block.BlockFace;
@@ -12,9 +13,18 @@ import java.util.List;
 /**
  * Created by Elijah on 14/08/2015.
  */
-public class C4Properties {
+public class C4Properties extends CommonSettings {
 
-    private List<Board> boards = new ArrayList<>();
+    private List<Board> boards;
+
+    public C4Properties(Connect4Plugin plugin) {
+        super(plugin);
+        this.boards = new ArrayList<>();
+    }
+
+    private C4Properties(){
+
+    }
 
     public static class Board {
         private String id;

@@ -22,16 +22,14 @@ public class C4Manager {
     private Map<Player, Selection> selections = new HashMap<>();
     private Map<Integer, C4Game> games = new HashMap<>();
 
-    private final File file;
     private C4Properties config;
 
-    public C4Manager(File file) {
-        this.file = file;
+    public C4Manager() {
+        this.config = plugin.getSettings();
         load();
     }
 
     public void load(){
-        config = SerializationUtils.loadOrCreateProperties(plugin.getLog(), file, new C4Properties(), "settings");
         for (C4Properties.Board board : config.getBoards()) {
             World world = Bukkit.getWorld(board.getWorld());
             if (world == null){

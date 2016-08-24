@@ -1,10 +1,6 @@
 package me.xorgon.connect4;
 
 import com.supaham.commons.bukkit.SimpleCommonPlugin;
-import org.bukkit.Bukkit;
-import pluginbase.config.SerializationRegistrar;
-
-import java.io.File;
 
 /**
  * Created by Elijah on 14/08/2015.
@@ -15,20 +11,15 @@ public class Connect4Plugin extends SimpleCommonPlugin<Connect4Plugin> {
     private C4Manager manager;
     private static final String COMMAND_PREFIX = "c4";
 
-    static {
-        SerializationRegistrar.registerClass(C4Properties.class);
-        SerializationRegistrar.registerClass(C4Properties.Board.class);
-    }
-
     public Connect4Plugin() {
-        super(Connect4Plugin.class, COMMAND_PREFIX);
+        setSettings(() -> new C4Properties(this));
     }
 
     @Override
     public void onEnable() {
         super.onEnable();
         instance = this;
-        manager = new C4Manager(new File(getDataFolder(), "boards.yml"));
+        manager = new C4Manager();
         registerEvents(new C4Listener());
         getCommand("c4").setExecutor(new C4Command());
     }
@@ -44,5 +35,10 @@ public class Connect4Plugin extends SimpleCommonPlugin<Connect4Plugin> {
 
     public C4Manager getManager() {
         return manager;
+    }
+
+    @Override
+    public C4Properties getSettings() {
+        return ((C4Properties) super.getSettings());
     }
 }
