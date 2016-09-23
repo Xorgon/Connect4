@@ -6,7 +6,7 @@
 
     <groupId>me.xorgon</groupId>
     <artifactId>Connect4</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
 
     <properties>
@@ -65,6 +65,30 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.supaham.commons:commons-bukkit</include>
+                                    <include>ninja.leaping.configurate:configurate-core</include>
+                                    <include>ninja.leaping.configurate:configurate-hocon</include>
+                                </includes>
+                            </artifactSet>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 
