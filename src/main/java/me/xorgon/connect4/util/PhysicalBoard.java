@@ -94,7 +94,7 @@ public class PhysicalBoard {
             if (board.placePiece(column, piece)) {
                 //Physical Board
                 Block slot = slots.get(column);
-                FallingBlock block = (FallingBlock) slot.getWorld().spawnFallingBlock(slot.getLocation().add(0.5, 1, 0.5), material.getItemType(), material.getData());
+                FallingBlock block = (FallingBlock) slot.getWorld().spawnFallingBlock(slot.getLocation().add(0, 1, 0), material.getItemType(), material.getData());
                 fallingBlocks.add(block);
 
                 canInteract = false;
