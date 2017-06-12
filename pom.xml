@@ -6,15 +6,15 @@
 
     <groupId>me.xorgon</groupId>
     <artifactId>Connect4</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 
 
     <properties>
         <package>me.xorgon.connect4</package>
         <main.class>${package}.Connect4Plugin</main.class>
 
-        <commons-bukkit.version>0.5.3-SNAPSHOT</commons-bukkit.version>
-        <spigot-api.version>1.11.2-R0.1-SNAPSHOT</spigot-api.version>
+        <commons-bukkit.version>0.5.4-SNAPSHOT</commons-bukkit.version>
+        <spigot-api.version>1.12-R0.1-SNAPSHOT</spigot-api.version>
     </properties>
 
     <repositories>
@@ -86,6 +86,16 @@
                                 </includes>
                             </artifactSet>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <relocations>
+                                <relocation>
+                                    <pattern>com.supaham.commons</pattern>
+                                    <shadedPattern>me.xorgon.connect4.internal.commons</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>pluginbase</pattern>
+                                    <shadedPattern>me.xorgon.connect4.internal.pluginbase</shadedPattern>
+                                </relocation>
+                            </relocations>
                         </configuration>
                     </execution>
                 </executions>
