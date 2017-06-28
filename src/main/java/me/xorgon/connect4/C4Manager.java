@@ -6,8 +6,11 @@ import me.xorgon.connect4.util.Selection;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import pluginbase.config.datasource.yaml.YamlDataSource;
+import pluginbase.messages.messaging.SendablePluginBaseException;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,31 +26,71 @@ public class C4Manager {
     private Map<Integer, C4Game> games = new HashMap<>();
 
     private C4Properties config;
+    private File boardsFile;
 
     public C4Manager() {
-        this.config = plugin.getSettings();
         load();
     }
 
-    public void load(){
+    public boolean load() {
+
+        YamlDataSource yaml;
+        try {
+            boardsFile = new File(plugin.getDataFolder(), "boards.yml");
+            yaml = SerializationUtils.yaml(boardsFile).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        config = SerializationUtils.loadOrCreateProperties(plugin.getLogger(), yaml, new C4Properties());
+
         for (C4Properties.Board board : config.getBoards()) {
+            if (!board.isComplete()) {
+                System.out.println(board.getId() + " is not complete and so will not be loaded.");
+                continue;
+            }
             World world = Bukkit.getWorld(board.getWorld());
-            if (world == null){
+            if (world == null) {
                 plugin.getLog().severe("'%s' board has null world.", board.getId());
                 continue;
             }
             boards.put(board.getId().toLowerCase(), new PhysicalBoard(world, board));
         }
+
+        return true;
     }
 
-    public void save(){
+    public boolean save() {
+        YamlDataSource yaml;
+        try {
+            yaml = SerializationUtils.yaml(boardsFile).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        try {
+            yaml.save(SerializationUtils.serialize(this.config));
+        } catch (SendablePluginBaseException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
-    /*public void addBoard(String tag){
-        boards.put(tag, new PhysicalBoard());
-    }*/
+    public boolean loadPhysicalBoard(String id) {
+        C4Properties.Board board = config.getBoard(id);
+        if (board != null && board.isComplete()) {
+            boards.put(id, new PhysicalBoard(Bukkit.getWorld(board.getWorld()), board));
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-    public PhysicalBoard getBoard(String tag){
+    public PhysicalBoard getBoard(String tag) {
         return boards.get(tag);
     }
 
@@ -55,12 +98,15 @@ public class C4Manager {
         return boards;
     }
 
-    public Selection getSelection(Player player){
+    public Selection getSelection(Player player) {
         return selections.get(player);
     }
 
-    public void addSelection(Player player, Selection selection){
+    public void addSelection(Player player, Selection selection) {
         selections.put(player, selection);
     }
 
+    public C4Properties getConfig() {
+        return config;
+    }
 }
