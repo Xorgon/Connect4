@@ -14,6 +14,8 @@ The plugin is easy to use. Place the Connect4 jar in the plugins folder and laun
 
 First build a board. The board must be 6 wide and 5 high with a row of blocks beneath it with buttons facing the players. As an example, see the image below.
 
+To use `/c4` commands the player must have the permission `c4.admin`. Ops have this by default.
+
 Create a board using `/c4 add <board name>`.
 
 Select the board region using WorldEdit and then set the region for your board using `/c4 set region <board name>`. The selection should look like this:

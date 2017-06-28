@@ -9,5 +9,5 @@ commands:
   c4:
     description: Connect4 administration commands.
     permission: c4.admin
-    usage: /c4 <list, reset, reload>
+    usage: /c4
     aliases: connect4

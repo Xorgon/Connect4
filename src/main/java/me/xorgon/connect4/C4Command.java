@@ -17,7 +17,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.util.List;
 
 /**
  * Connect4 commands class.
@@ -33,12 +32,14 @@ public class C4Command {
     }
 
     @Command(aliases = {"list"}, desc = "List available boards.")
+    @CommandPermissions("c4.admin")
     public static void listBoards(CommandContext args, CommandSender sender) {
         Connect4Plugin.getInstance().getManager().getBoards().keySet()
                 .forEach((s) -> sender.sendMessage(ChatColor.GREEN + s));
     }
 
     @Command(aliases = {"reload"}, desc = "Reloads Connect4 boards and configuration.")
+    @CommandPermissions("c4.admin")
     public static void reload(CommandContext args, CommandSender sender) {
         C4Manager manager = Connect4Plugin.getInstance().getManager();
         for (PhysicalBoard board : manager.getBoards().values()) {
@@ -52,6 +53,7 @@ public class C4Command {
     }
 
     @Command(aliases = {"reset"}, desc = "Resets the selected board", usage = "<board name>", min = 1, max = 1)
+    @CommandPermissions("c4.admin")
     public static void reset(CommandContext args, CommandSender sender) {
         C4Manager manager = Connect4Plugin.getInstance().getManager();
         String id = args.getString(0);
@@ -72,6 +74,7 @@ public class C4Command {
     }
 
     @Command(aliases = {"add", "addboard"}, desc = "Adds an unconfigured board.", usage = "<board name>", min = 1, max = 1)
+    @CommandPermissions("c4.admin")
     public static void add(CommandContext args, CommandSender sender) {
         C4Manager manager = Connect4Plugin.getInstance().getManager();
         String id = args.getString(0);
@@ -86,7 +89,8 @@ public class C4Command {
     }
 
     @Command(aliases = {"remove"}, desc = "Removes the specified board.", usage = "<board name>", min = 1, max = 1)
-    public static void remove(CommandContext args, CommandSender sender){
+    @CommandPermissions("c4.admin")
+    public static void remove(CommandContext args, CommandSender sender) {
         C4Manager manager = Connect4Plugin.getInstance().getManager();
         String id = args.getString(0);
         C4Properties.Board board = manager.getConfig().getBoard(id);
@@ -105,6 +109,7 @@ public class C4Command {
     }
 
     @Command(aliases = {"load", "loadboard"}, desc = "Attempts to load specified board.", usage = "<board name>", min = 1, max = 1)
+    @CommandPermissions("c4.admin")
     public static void load(CommandContext args, CommandSender sender) {
         C4Manager manager = Connect4Plugin.getInstance().getManager();
         String id = args.getString(0);
@@ -130,6 +135,7 @@ public class C4Command {
         public static class C4SetRootCommand {
             @Command(aliases = {"set"}, desc = "Define a setting for a board.")
             @NestedCommand(value = {C4SetCommand.class})
+            @CommandPermissions("c4.admin")
             public static void set(CommandContext args, CommandSender sender) {
             }
         }
@@ -139,6 +145,7 @@ public class C4Command {
                 usage = "<board name>",
                 min = 1,
                 max = 1)
+        @CommandPermissions("c4.admin")
         public static void region(CommandContext args, CommandSender sender) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(ChatColor.RED + "You must be a player to use that command.");
@@ -190,6 +197,7 @@ public class C4Command {
                 usage = "<board name>",
                 min = 1,
                 max = 1)
+        @CommandPermissions("c4.admin")
         public static void face(CommandContext args, CommandSender sender) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(ChatColor.RED + "You must be a player to use that command.");
