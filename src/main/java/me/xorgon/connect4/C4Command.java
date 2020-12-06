@@ -4,14 +4,17 @@ import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.NestedCommand;
+import com.sk89q.worldedit.IncompleteRegionException;
+import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.bukkit.selections.Selection;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.Region;
 import com.supaham.commons.bukkit.area.CuboidRegion;
 import me.xorgon.connect4.util.BlockFaceUtil;
 import me.xorgon.connect4.util.PhysicalBoard;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -155,33 +158,54 @@ public class C4Command {
             C4Manager manager = Connect4Plugin.getInstance().getManager();
             String id = args.getString(0);
             C4Properties.Board board = manager.getConfig().getBoard(id);
+
+            BlockVector3 max = null;
+            BlockVector3 min = null;
+            World world = null;
             if (board != null) {
                 WorldEditPlugin worldedit = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
-                Selection selection = worldedit.getSelection(player);
-                Location max = selection.getMaximumPoint();
-                Location min = selection.getMinimumPoint();
-
-                // Ensure y difference is 5 and either x or z difference is 6 but not both.
-                if (max.getBlockY() - min.getBlockY() + 1 != 5
-                        || (max.getBlockX() - min.getBlockX() + 1 == 6) == (max.getBlockZ() - min.getBlockZ() + 1 == 6)) {
-                    player.sendMessage(ChatColor.RED + "That selection is not valid. Selection must by 5 high and 6 wide.");
-                    return;
+                LocalSession playerSession = worldedit.getSession(player);
+                if (playerSession != null) {
+                    Region selection = null;
+                    try {
+                        selection = playerSession.getSelection(playerSession.getSelectionWorld());
+                    } catch (IncompleteRegionException e) {
+                        player.sendMessage(ChatColor.RED + "Your selection is incomplete.");
+                    }
+                    if (selection != null) {
+                        max = selection.getMaximumPoint();
+                        min = selection.getMinimumPoint();
+                        world = Bukkit.getServer().getWorld(selection.getWorld().getName());
+                    } else {
+                        player.sendMessage(ChatColor.RED + "Your selection could not be found.");
+                        return;
+                    }
+                } else {
+                    player.sendMessage(ChatColor.RED + "WorldEdit could not find your session.");
                 }
 
+
+                // Ensure y difference is 5 and either x or z difference is 6 but not both.
+//                if (max.getBlockY() - min.getBlockY() + 1 != 5
+//                        || (max.getBlockX() - min.getBlockX() + 1 == 6) == (max.getBlockZ() - min.getBlockZ() + 1 == 6)) {
+//                    player.sendMessage(ChatColor.RED + "That selection is not valid. Selection must by 5 high and 6 wide.");
+//                    return;
+//                }
+
+                Vector maxVect = new Vector(max.getX(), max.getY(), max.getZ());
+                Vector minVect = new Vector(min.getX(), min.getY(), min.getZ());
                 // Ensure the region is perpendicular to the face.
                 if (board.getFace() != null) {
-                    Vector maxVect = max.toVector();
-                    Vector minVect = min.toVector();
-                    Vector perp = maxVect.subtract(minVect).crossProduct(new Vector(0, 1, 0));
+                    Vector perp = maxVect.clone().subtract(minVect).crossProduct(new Vector(0, 1, 0));
                     if (perp.normalize().dot(BlockFaceUtil.blockFaceToVector(board.getFace())) == 0) {
                         player.sendMessage(ChatColor.RED + "Region must be perpendicular to the face.");
                         return;
                     }
                 }
 
-                CuboidRegion region = new CuboidRegion(max, min);
+                CuboidRegion region = new CuboidRegion(maxVect, minVect);
                 board.setRegion(region);
-                board.setWorld(selection.getWorld().getName());
+                board.setWorld(world.getName());
                 player.sendMessage(ChatColor.YELLOW + "Region set.");
 
                 if (manager.loadPhysicalBoard(id)) {

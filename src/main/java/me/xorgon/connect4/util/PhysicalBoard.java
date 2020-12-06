@@ -6,16 +6,23 @@ import com.supaham.commons.bukkit.utils.BlockFaceUtils;
 import com.supaham.commons.utils.WeakSet;
 import me.xorgon.connect4.C4Properties;
 import me.xorgon.connect4.Connect4Plugin;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
-import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Elijah on 14/08/2015.
@@ -32,7 +39,7 @@ public class PhysicalBoard {
     private String tag;
     private BlockFace face;
     private final C4Properties.Board config;
-    private final World world;
+    private World world;
 
 
     private boolean canInteract = true;
@@ -57,6 +64,12 @@ public class PhysicalBoard {
     }
 
     public void resetBoard() {
+        if (world == null) {
+            world = Bukkit.getWorld(config.getWorld());
+        } else {
+            System.out.println("Could not find world " + config.getWorld());
+            return;
+        }
         for (Vector space : config.getRegion()) {
             space.toLocation(world).getBlock().setType(Material.AIR);
         }
@@ -80,21 +93,21 @@ public class PhysicalBoard {
 
     public void placePiece(Player player, int column) {
         if ((player == redPlayer && redTurn) || (player == bluePlayer && !redTurn)) {
-            MaterialData material;
+            Material material;
 
             //Virtual Board
             VirtualBoard.SpaceType piece;
             if (player == redPlayer) {
                 piece = VirtualBoard.SpaceType.RED;
-                material = config.getRedBlock();
+                material = Material.getMaterial(config.getRedBlock());
             } else {
                 piece = VirtualBoard.SpaceType.BLUE;
-                material = config.getBlueBlock();
+                material = Material.getMaterial(config.getBlueBlock());
             }
             if (board.placePiece(column, piece)) {
                 //Physical Board
                 Block slot = slots.get(column);
-                FallingBlock block = (FallingBlock) slot.getWorld().spawnFallingBlock(slot.getLocation().add(0.5, 1, 0.5), material.getItemType(), material.getData());
+                FallingBlock block = slot.getWorld().spawnFallingBlock(slot.getLocation().add(0.5, 1, 0.5), material.createBlockData());
                 fallingBlocks.add(block);
 
                 canInteract = false;
@@ -140,12 +153,9 @@ public class PhysicalBoard {
 
             finished = true;
 
-            Bukkit.getScheduler().runTaskLater(Connect4Plugin.getInstance(), new Runnable() {
-                @Override
-                public void run() {
-                    resetBoard();
-                    resetPlayers();
-                }
+            Bukkit.getScheduler().runTaskLater(Connect4Plugin.getInstance(), () -> {
+                resetBoard();
+                resetPlayers();
             }, 10 * 20);
 
         } else {
@@ -163,6 +173,10 @@ public class PhysicalBoard {
     }
 
     public void loadBoard(World world) {
+        if (world == null) {
+            return;
+        }
+        this.world = world;
         Location min = config.getRegion().getMinimumPoint().toLocation(world);
         Location max = config.getRegion().getMaximumPoint().toLocation(world);
 
@@ -263,5 +277,13 @@ public class PhysicalBoard {
 
     public VirtualBoard getBoard() {
         return board;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public C4Properties.Board getConfig() {
+        return config;
     }
 }

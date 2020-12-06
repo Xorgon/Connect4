@@ -1,13 +1,9 @@
 package me.xorgon.connect4;
 
 import com.supaham.commons.bukkit.area.CuboidRegion;
-import com.supaham.commons.bukkit.serializers.MaterialDataSerializer;
-import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.material.MaterialData;
 import pluginbase.config.annotation.NoTypeKey;
-import pluginbase.config.annotation.SerializeWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,10 +25,8 @@ public final class C4Properties {
         private String world;
         private BlockFace face;
         private CuboidRegion region;
-        @SerializeWith(MaterialDataSerializer.class)
-        private MaterialData redBlock;
-        @SerializeWith(MaterialDataSerializer.class)
-        private MaterialData blueBlock;
+        private String redBlock;
+        private String blueBlock;
 
         public String getId() {
             return id;
@@ -50,18 +44,18 @@ public final class C4Properties {
             return region;
         }
 
-        public MaterialData getRedBlock() {
+        public String getRedBlock() {
             return redBlock;
         }
 
-        public MaterialData getBlueBlock() {
+        public String getBlueBlock() {
             return blueBlock;
         }
 
         public void setId(String id) {
             this.id = id;
-            redBlock = new MaterialData(Material.WOOL, DyeColor.RED.getWoolData());
-            blueBlock = new MaterialData(Material.WOOL, DyeColor.BLUE.getWoolData());
+            redBlock = Material.RED_WOOL.name();
+            blueBlock = Material.BLUE_WOOL.name();
         }
 
         public void setWorld(String world) {
@@ -76,11 +70,11 @@ public final class C4Properties {
             this.region = region;
         }
 
-        public void setRedBlock(MaterialData redBlock) {
+        public void setRedBlock(String redBlock) {
             this.redBlock = redBlock;
         }
 
-        public void setBlueBlock(MaterialData blueBlock) {
+        public void setBlueBlock(String blueBlock) {
             this.blueBlock = blueBlock;
         }
 

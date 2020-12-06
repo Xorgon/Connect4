@@ -1,11 +1,10 @@
 package me.xorgon.connect4;
 
-import com.supaham.commons.bukkit.title.Title;
 import me.xorgon.connect4.util.PhysicalBoard;
 import me.xorgon.connect4.util.TitleUtil;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Switch;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +14,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 
 /**
  * Created by Elijah on 14/08/2015.
@@ -36,6 +36,15 @@ public class C4Listener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent event) {
+        for (PhysicalBoard board : manager.getBoards().values()) {
+            if (event.getWorld().getName().equals(board.getConfig().getWorld())) {
+                System.out.println("Loading board " + board.getConfig().getId());
+                board.loadBoard(event.getWorld());
+            }
+        }
+    }
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
@@ -74,8 +83,7 @@ public class C4Listener implements Listener {
         Action action = event.getAction();
         if (action == Action.RIGHT_CLICK_BLOCK) {
             Block clickedBlock = event.getClickedBlock();
-            Material type = clickedBlock.getType();
-            if (type == Material.STONE_BUTTON || type == Material.WOOD_BUTTON) {
+            if (Switch.class.isInstance(clickedBlock.getBlockData())) {
                 for (PhysicalBoard board : manager.getBoards().values()) {
                     for (Block block : board.getButtons().keySet()) {
                         if (clickedBlock.equals(block) && board.isCanInteract()) {
@@ -130,12 +138,12 @@ public class C4Listener implements Listener {
         for (PhysicalBoard board : manager.getBoards().values()) {
             if (board.getRedPlayer() != null && board.getRedPlayer().equals(player)) {
                 if (board.getBluePlayer() != null) {
-                    board.getBluePlayer().sendTitle(ChatColor.RED + "Your opponent quit.", "");
+                    board.getBluePlayer().sendTitle(ChatColor.RED + "Your opponent quit.", "", 10, 70, 20);
                 }
                 board.resetBoard();
                 board.resetPlayers();
             } else if (board.getBluePlayer() != null && board.getBluePlayer().equals(player)) {
-                board.getRedPlayer().sendTitle(ChatColor.RED + "Your opponent quit.", "");
+                board.getRedPlayer().sendTitle(ChatColor.RED + "Your opponent quit.", "", 10, 70, 20);
                 board.resetBoard();
                 board.resetPlayers();
             }

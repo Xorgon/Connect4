@@ -1,6 +1,7 @@
 name: ${artifactId}
 version: ${version}
 main: ${main.class}
+api-version: 1.16
 permissions:
   c4.admin:
     description: Allows administration of Connect4.

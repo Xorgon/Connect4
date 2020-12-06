@@ -53,9 +53,10 @@ public class C4Manager {
             World world = Bukkit.getWorld(board.getWorld());
             if (world == null) {
                 plugin.getLog().severe("'%s' board has null world.", board.getId());
-                continue;
+                boards.put(board.getId().toLowerCase(), new PhysicalBoard(null, board));
+            } else {
+                boards.put(board.getId().toLowerCase(), new PhysicalBoard(world, board));
             }
-            boards.put(board.getId().toLowerCase(), new PhysicalBoard(world, board));
         }
 
         return true;
