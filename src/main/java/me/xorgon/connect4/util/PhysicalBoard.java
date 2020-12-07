@@ -66,7 +66,8 @@ public class PhysicalBoard {
     public void resetBoard() {
         if (world == null) {
             world = Bukkit.getWorld(config.getWorld());
-        } else {
+        }
+        if (world == null) {  // Still couldn't find world.
             System.out.println("Could not find world " + config.getWorld());
             return;
         }
@@ -76,10 +77,10 @@ public class PhysicalBoard {
         board.initialize();
         finished = false;
         canInteract = true;
-        if (initTimer != null){
+        if (initTimer != null) {
             initTimer.cancel();
         }
-        if (finTimer != null){
+        if (finTimer != null) {
             finTimer.cancel();
         }
     }
@@ -129,7 +130,7 @@ public class PhysicalBoard {
             String winString = (redWin ? ChatColor.RED + redPlayer.getName() : ChatColor.BLUE + bluePlayer.getName())
                     + ChatColor.YELLOW + " wins!";
             String announce = (redWin ? ChatColor.RED + redPlayer.getName() : ChatColor.BLUE + bluePlayer.getName())
-            + ChatColor.YELLOW + " beat " + (!redWin ? ChatColor.RED + redPlayer.getName() : ChatColor.BLUE + bluePlayer.getName()) + ChatColor.YELLOW + " at Connect 4!";
+                    + ChatColor.YELLOW + " beat " + (!redWin ? ChatColor.RED + redPlayer.getName() : ChatColor.BLUE + bluePlayer.getName()) + ChatColor.YELLOW + " at Connect 4!";
             Collection<? extends Player> players = Players.playersByRadius(Players.worldPlayers(block.getWorld()), 20).get(block.getLocation());
             for (Player player : players) {
                 player.sendMessage(announce);
@@ -147,9 +148,9 @@ public class PhysicalBoard {
                     resetPlayers();
                 }
             }, 10 * 20);
-        } else if (winStatus == VirtualBoard.WinStatus.DRAW){
-            TitleUtil.sendTitle(redPlayer, ChatColor.YELLOW + "It's a draw!","");
-            TitleUtil.sendTitle(bluePlayer, ChatColor.YELLOW + "It's a draw!","");
+        } else if (winStatus == VirtualBoard.WinStatus.DRAW) {
+            TitleUtil.sendTitle(redPlayer, ChatColor.YELLOW + "It's a draw!", "");
+            TitleUtil.sendTitle(bluePlayer, ChatColor.YELLOW + "It's a draw!", "");
 
             finished = true;
 
@@ -204,7 +205,7 @@ public class PhysicalBoard {
         resetBoard();
     }
 
-    public void resetTimers(){
+    public void resetTimers() {
         initTimer = Bukkit.getScheduler().runTaskLater(Connect4Plugin.getInstance(), new Runnable() {
             @Override
             public void run() {
